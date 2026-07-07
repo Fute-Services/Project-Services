@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Fute Softwares — App Distribution Portal",
+  title: "Fute Softwares - App Distribution Portal",
   description: "Deliver apps to your clients, simply and securely.",
   appleWebApp: {
     title: "Fute Softwares",

@@ -8,7 +8,7 @@ export default function Home() {
           Deliver apps to your clients, simply and securely.
         </h1>
         <p className="mt-4 max-w-xl text-neutral-400">
-          A private link for every client — where they can see the latest
+          A private link for every client - where they can see the latest
           version, screenshots, and notes for their apps.
         </p>
 

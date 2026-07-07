@@ -19,6 +19,7 @@ type Client = {
   projects: {
     slug: string;
     title: string;
+    icon: string;
     version: string;
     status: ProjectStatus;
     expiresAt: string | null;
@@ -154,7 +155,7 @@ export default function AdminPage() {
               <div className="mt-3 divide-y divide-neutral-800 rounded-xl border border-neutral-800">
                 {client.projects.length === 0 && (
                   <p className="px-4 py-3 text-xs text-neutral-500">
-                    No apps yet — use &quot;+ Add App&quot; to upload the first one.
+                    No apps yet - use &quot;+ Add App&quot; to upload the first one.
                   </p>
                 )}
                 {client.projects.map((project) => {
@@ -169,21 +170,35 @@ export default function AdminPage() {
                   return (
                     <div key={project.slug} className="px-4 py-3">
                       <div className="flex flex-wrap items-center justify-between gap-2">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <p className="font-medium">{project.title}</p>
-                            <StatusSelect
-                              slug={project.slug}
-                              status={project.status}
-                              onChanged={loadClients}
+                        <div className="flex items-center gap-3">
+                          {project.icon ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={project.icon}
+                              alt={`${project.title} icon`}
+                              className="h-9 w-9 shrink-0 rounded-lg object-cover"
                             />
+                          ) : (
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-neutral-800 text-xs font-semibold">
+                              {project.title.charAt(0)}
+                            </div>
+                          )}
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium">{project.title}</p>
+                              <StatusSelect
+                                slug={project.slug}
+                                status={project.status}
+                                onChanged={loadClients}
+                              />
+                            </div>
+                            <p className="text-xs text-neutral-500">
+                              v{project.version} · {platforms.join(", ") || "no files yet"}{" "}
+                              · {totalDownloads} download{totalDownloads === 1 ? "" : "s"}
+                              {project.expiresAt &&
+                                ` · expires ${new Date(project.expiresAt).toLocaleDateString()}`}
+                            </p>
                           </div>
-                          <p className="text-xs text-neutral-500">
-                            v{project.version} · {platforms.join(", ") || "no files yet"}{" "}
-                            · {totalDownloads} download{totalDownloads === 1 ? "" : "s"}
-                            {project.expiresAt &&
-                              ` · expires ${new Date(project.expiresAt).toLocaleDateString()}`}
-                          </p>
                         </div>
                         <div className="flex items-center gap-2">
                           <button
@@ -234,7 +249,7 @@ export default function AdminPage() {
 
         {!loading && clients.length === 0 && (
           <p className="mt-10 text-sm text-neutral-500">
-            No clients yet — add your first one above.
+            No clients yet - add your first one above.
           </p>
         )}
       </div>

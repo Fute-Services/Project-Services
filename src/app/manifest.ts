@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Fute Softwares — App Distribution Portal",
+    name: "Fute Softwares - App Distribution Portal",
     short_name: "Fute Softwares",
     description: "Deliver apps to your clients, simply and securely.",
     start_url: "/admin",

@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
   if (!res.ok) {
     const msg =
       res.status === 404
-        ? "Repo ya releases nahi mile — repo naam check karo (owner/name)"
+        ? "Repo ya releases nahi mile - repo naam check karo (owner/name)"
         : `GitHub API error: ${res.status}`;
     return NextResponse.json({ error: msg }, { status: res.status });
   }

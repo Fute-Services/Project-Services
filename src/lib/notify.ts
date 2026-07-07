@@ -9,7 +9,7 @@ export async function sendDownloadEmail(
   const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, NOTIFY_EMAIL } = process.env;
 
   if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS || !NOTIFY_EMAIL) {
-    // Email not configured yet — skip silently, download itself is unaffected.
+    // Email not configured yet - skip silently, download itself is unaffected.
     return;
   }
 
@@ -23,7 +23,7 @@ export async function sendDownloadEmail(
   await transporter.sendMail({
     from: SMTP_USER,
     to: NOTIFY_EMAIL,
-    subject: `Download: ${client.name} — ${project.title} (${platform})`,
+    subject: `Download: ${client.name} - ${project.title} (${platform})`,
     text: `${client.name} downloaded "${project.title}" (v${project.version}) for ${platform}.\n\nTotal downloads (${platform}): ${project.downloadCounts[platform]}`,
   });
 }

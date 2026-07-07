@@ -9,7 +9,7 @@ export default function WhatsAppShareButton({
 }) {
   function handleClick() {
     const url = `${window.location.origin}/p/${slug}`;
-    const text = encodeURIComponent(`${title} — download link: ${url}`);
+    const text = encodeURIComponent(`${title} - download link: ${url}`);
     window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");
   }
 

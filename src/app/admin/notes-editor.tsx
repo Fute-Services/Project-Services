@@ -42,7 +42,7 @@ export default function NotesEditor({
       <textarea
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
-        placeholder="Private note (only visible to you) — e.g. payment pending, redesign needed..."
+        placeholder="Private note (only visible to you) - e.g. payment pending, redesign needed..."
         rows={2}
         className="w-full rounded-lg bg-neutral-900 px-3 py-2 text-xs outline-none placeholder:text-neutral-600"
       />
