@@ -1,0 +1,47 @@
+{
+  "clients": [
+    {
+      "id": "abc-traders",
+      "name": "ABC Traders",
+      "projects": [
+        {
+          "slug": "abc-inventory-app",
+          "title": "ABC Inventory App",
+          "description": "Inventory management app for ABC Traders",
+          "version": "1.2.0",
+          "icon": "",
+          "downloads": {
+            "windows": "https://example.com/files/abc/inventory-1.2.0-win.exe",
+            "mac": "https://example.com/files/abc/inventory-1.2.0-mac.dmg",
+            "android": null
+          },
+          "updatedAt": "2026-07-01T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": "xyz-retail",
+      "name": "XYZ Retail",
+      "projects": [
+        {
+          "slug": "xyz-pos-app",
+          "title": "XYZ POS App",
+          "description": "Point of sale app for XYZ Retail outlets",
+          "version": "1.0.0",
+          "icon": "",
+          "downloads": {
+            "windows": null,
+            "mac": null,
+            "android": "https://example.com/files/xyz/pos-1.0.0.apk"
+          },
+          "updatedAt": "2026-07-05T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": "cignus",
+      "name": "Cignus",
+      "projects": []
+    }
+  ]
+}
