@@ -1,6 +1,36 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getProjectBySlug, isExpired } from "@/lib/clients";
 import DownloadButtons from "./download-buttons";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const result = await getProjectBySlug(slug);
+  if (!result) return {};
+
+  const { project } = result;
+  const image = project.icon || "/logo.png";
+
+  return {
+    title: project.title,
+    description: project.description || `Download ${project.title}`,
+    openGraph: {
+      title: project.title,
+      description: project.description || `Download ${project.title}`,
+      images: [image],
+    },
+    twitter: {
+      card: "summary",
+      title: project.title,
+      description: project.description || `Download ${project.title}`,
+      images: [image],
+    },
+  };
+}
 
 export default async function ProjectPage({
   params,

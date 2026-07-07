@@ -1,6 +1,33 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getClientById, isExpired } from "@/lib/clients";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ clientId: string }>;
+}): Promise<Metadata> {
+  const { clientId } = await params;
+  const client = await getClientById(clientId);
+  if (!client) return {};
+
+  return {
+    title: client.name,
+    description: `All your apps in one place`,
+    openGraph: {
+      title: client.name,
+      description: `All your apps in one place`,
+      images: ["/logo.png"],
+    },
+    twitter: {
+      card: "summary",
+      title: client.name,
+      description: `All your apps in one place`,
+      images: ["/logo.png"],
+    },
+  };
+}
 
 export default async function ClientPortalPage({
   params,

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Script from "next/script";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,8 +12,15 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const siteUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
+  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+  : process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : "http://localhost:3000";
+
 export const metadata: Metadata = {
-  title: "Fute Softwares - App Distribution Portal",
+  metadataBase: new URL(siteUrl),
+  title: "Fute Softwares",
   description: "Deliver apps to your clients, simply and securely.",
   appleWebApp: {
     title: "Fute Softwares",
@@ -36,12 +42,7 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
-        {children}
-        <Script id="register-sw" strategy="afterInteractive">
-          {`if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js'); }); }`}
-        </Script>
-      </body>
+      <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
 }
