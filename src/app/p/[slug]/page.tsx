@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getProjectBySlug, isExpired } from "@/lib/clients";
 import DownloadButtons from "./download-buttons";
+import AppIcon from "@/components/app-icon";
 
 export async function generateMetadata({
   params,
@@ -51,18 +52,11 @@ export default async function ProjectPage({
       style={project.background ? { backgroundColor: project.background } : undefined}
     >
       <div className="w-full max-w-md text-center">
-        {project.icon ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={project.icon}
-            alt={`${project.title} icon`}
-            className="mx-auto mb-6 h-20 w-20 rounded-2xl object-cover"
-          />
-        ) : (
-          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-neutral-800 text-3xl font-semibold">
-            {project.title.charAt(0)}
-          </div>
-        )}
+        <AppIcon
+          src={project.icon || "/logo.png"}
+          alt={`${project.title} icon`}
+          className="mx-auto mb-6 h-20 w-20 rounded-2xl object-cover"
+        />
 
         <h1 className="text-2xl font-semibold">{project.title}</h1>
 

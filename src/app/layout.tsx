@@ -20,10 +20,10 @@ const siteUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "Fute Softwares",
+  title: "Fute Software",
   description: "Deliver apps to your clients, simply and securely.",
   appleWebApp: {
-    title: "Fute Softwares",
+    title: "Fute Software",
     statusBarStyle: "black-translucent",
   },
   icons: {

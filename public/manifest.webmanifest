@@ -1,6 +1,6 @@
 {
-  "name": "Fute Softwares - App Distribution Portal",
-  "short_name": "Fute Softwares",
+  "name": "Fute Software - App Distribution Portal",
+  "short_name": "Fute Software",
   "description": "Deliver apps to your clients, simply and securely.",
   "start_url": "/admin",
   "display": "standalone",

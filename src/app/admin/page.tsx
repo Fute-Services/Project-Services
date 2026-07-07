@@ -12,6 +12,7 @@ import EmailShareButton from "./email-share-button";
 import NotesEditor from "./notes-editor";
 import ScreenshotsUploader from "./screenshots-uploader";
 import EditProjectForm from "./edit-project-form";
+import AppIcon from "@/components/app-icon";
 import type { ProjectStatus, PlatformSettings } from "@/lib/clients";
 
 // Local copy so this client component doesn't pull in lib/clients.ts's
@@ -184,18 +185,11 @@ export default function AdminPage() {
                     <div key={project.slug} className="px-4 py-3">
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-3">
-                          {project.icon ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                              src={project.icon}
-                              alt={`${project.title} icon`}
-                              className="h-9 w-9 shrink-0 rounded-lg object-cover"
-                            />
-                          ) : (
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-neutral-800 text-xs font-semibold">
-                              {project.title.charAt(0)}
-                            </div>
-                          )}
+                          <AppIcon
+                            src={project.icon || "/logo.png"}
+                            alt={`${project.title} icon`}
+                            className="h-9 w-9 shrink-0 rounded-lg object-cover"
+                          />
                           <div>
                             <div className="flex items-center gap-2">
                               <p className="font-medium">{project.title}</p>
