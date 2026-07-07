@@ -13,7 +13,7 @@ export async function POST(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
-  const existing = getProjectBySlug(slug);
+  const existing = await getProjectBySlug(slug);
   if (!existing) {
     return NextResponse.json({ error: "Project not found" }, { status: 404 });
   }
@@ -47,7 +47,7 @@ export async function POST(
   }
 
   try {
-    const project = addProjectVersion(slug, { version, downloads });
+    const project = await addProjectVersion(slug, { version, downloads });
     return NextResponse.json({ project });
   } catch (err) {
     return NextResponse.json(

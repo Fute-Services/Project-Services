@@ -1,6 +1,27 @@
 import fs from "fs";
 import path from "path";
+import { put } from "@vercel/blob";
 import type { Platform } from "@/lib/clients";
+
+// On Vercel the filesystem is read-only outside /tmp, so uploads go to Vercel
+// Blob there. Locally (no BLOB_READ_WRITE_TOKEN configured), fall back to
+// writing into public/uploads so `npm run dev` keeps working without cloud
+// credentials.
+const useBlob = !!process.env.BLOB_READ_WRITE_TOKEN;
+
+async function store(key: string, file: File): Promise<string> {
+  if (useBlob) {
+    const blob = await put(key, file, { access: "public", addRandomSuffix: false });
+    return blob.url;
+  }
+
+  const dir = path.join(process.cwd(), "public", path.dirname(key));
+  fs.mkdirSync(dir, { recursive: true });
+  const filePath = path.join(process.cwd(), "public", key);
+  const buffer = Buffer.from(await file.arrayBuffer());
+  fs.writeFileSync(filePath, buffer);
+  return `/${key}`;
+}
 
 export async function saveFile(
   file: File,
@@ -9,15 +30,8 @@ export async function saveFile(
   platform: Platform
 ): Promise<string> {
   const ext = path.extname(file.name) || "";
-  const dir = path.join(process.cwd(), "public", "uploads", clientId, projectSlug);
-  fs.mkdirSync(dir, { recursive: true });
-
   const filename = `${platform}-${Date.now()}${ext}`;
-  const filePath = path.join(dir, filename);
-  const buffer = Buffer.from(await file.arrayBuffer());
-  fs.writeFileSync(filePath, buffer);
-
-  return `/uploads/${clientId}/${projectSlug}/${filename}`;
+  return store(`uploads/${clientId}/${projectSlug}/${filename}`, file);
 }
 
 export async function saveScreenshot(
@@ -26,20 +40,6 @@ export async function saveScreenshot(
   projectSlug: string
 ): Promise<string> {
   const ext = path.extname(file.name) || ".png";
-  const dir = path.join(
-    process.cwd(),
-    "public",
-    "uploads",
-    clientId,
-    projectSlug,
-    "screenshots"
-  );
-  fs.mkdirSync(dir, { recursive: true });
-
   const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}${ext}`;
-  const filePath = path.join(dir, filename);
-  const buffer = Buffer.from(await file.arrayBuffer());
-  fs.writeFileSync(filePath, buffer);
-
-  return `/uploads/${clientId}/${projectSlug}/screenshots/${filename}`;
+  return store(`uploads/${clientId}/${projectSlug}/screenshots/${filename}`, file);
 }

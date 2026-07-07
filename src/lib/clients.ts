@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { Redis } from "@upstash/redis";
 
 export type Platform = "windows" | "mac" | "android";
 
@@ -42,13 +43,30 @@ export type Client = {
 type Data = { clients: Client[] };
 
 const DATA_PATH = path.join(process.cwd(), "data", "clients.json");
+const REDIS_KEY = "clients-data";
 
-function readData(): Data {
+// On Vercel the filesystem is read-only outside /tmp, so client/project data
+// lives in Redis there. Locally (no Redis env vars configured), fall back to
+// the JSON file so `npm run dev` keeps working without cloud credentials.
+const redis =
+  process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
+    ? Redis.fromEnv()
+    : null;
+
+async function readData(): Promise<Data> {
+  if (redis) {
+    const data = await redis.get<Data>(REDIS_KEY);
+    return data ?? { clients: [] };
+  }
   const raw = fs.readFileSync(DATA_PATH, "utf-8");
   return JSON.parse(raw) as Data;
 }
 
-function writeData(data: Data) {
+async function writeData(data: Data): Promise<void> {
+  if (redis) {
+    await redis.set(REDIS_KEY, data);
+    return;
+  }
   fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2) + "\n", "utf-8");
 }
 
@@ -60,14 +78,14 @@ export function slugify(input: string): string {
     .replace(/(^-|-$)/g, "");
 }
 
-export function getAllClients(): Client[] {
-  return readData().clients;
+export async function getAllClients(): Promise<Client[]> {
+  return (await readData()).clients;
 }
 
-export function getProjectBySlug(
+export async function getProjectBySlug(
   slug: string
-): { client: Client; project: Project } | null {
-  const clients = readData().clients;
+): Promise<{ client: Client; project: Project } | null> {
+  const clients = (await readData()).clients;
   for (const client of clients) {
     const project = client.projects.find((p) => p.slug === slug);
     if (project) return { client, project };
@@ -75,8 +93,8 @@ export function getProjectBySlug(
   return null;
 }
 
-export function getClientById(id: string): Client | null {
-  return readData().clients.find((c) => c.id === id) ?? null;
+export async function getClientById(id: string): Promise<Client | null> {
+  return (await readData()).clients.find((c) => c.id === id) ?? null;
 }
 
 export function isExpired(project: Project): boolean {
@@ -84,8 +102,8 @@ export function isExpired(project: Project): boolean {
   return new Date(project.expiresAt).getTime() < Date.now();
 }
 
-export function addClient(name: string): Client {
-  const data = readData();
+export async function addClient(name: string): Promise<Client> {
+  const data = await readData();
   let id = slugify(name);
   let suffix = 2;
   while (data.clients.some((c) => c.id === id)) {
@@ -93,12 +111,12 @@ export function addClient(name: string): Client {
   }
   const client: Client = { id, name, projects: [] };
   data.clients.push(client);
-  writeData(data);
+  await writeData(data);
   return client;
 }
 
-export function generateUniqueSlug(title: string): string {
-  const data = readData();
+export async function generateUniqueSlug(title: string): Promise<string> {
+  const data = await readData();
   const allSlugs = new Set(
     data.clients.flatMap((c) => c.projects.map((p) => p.slug))
   );
@@ -110,7 +128,7 @@ export function generateUniqueSlug(title: string): string {
   return slug;
 }
 
-export function addProject(
+export async function addProject(
   clientId: string,
   input: {
     slug: string;
@@ -121,8 +139,8 @@ export function addProject(
     expiresAt?: string | null;
     screenshots?: string[];
   }
-): Project {
-  const data = readData();
+): Promise<Project> {
+  const data = await readData();
   const client = data.clients.find((c) => c.id === clientId);
   if (!client) throw new Error("Client not found");
 
@@ -145,15 +163,15 @@ export function addProject(
   };
 
   client.projects.push(project);
-  writeData(data);
+  await writeData(data);
   return project;
 }
 
-export function addProjectVersion(
+export async function addProjectVersion(
   slug: string,
   input: { version: string; downloads: ProjectDownloads }
-): Project {
-  const data = readData();
+): Promise<Project> {
+  const data = await readData();
   for (const client of data.clients) {
     const project = client.projects.find((p) => p.slug === slug);
     if (project) {
@@ -172,88 +190,88 @@ export function addProjectVersion(
         createdAt: now,
       });
       project.updatedAt = now;
-      writeData(data);
+      await writeData(data);
       return project;
     }
   }
   throw new Error("Project not found");
 }
 
-export function updateProjectStatus(
+export async function updateProjectStatus(
   slug: string,
   status: ProjectStatus
-): Project {
-  const data = readData();
+): Promise<Project> {
+  const data = await readData();
   for (const client of data.clients) {
     const project = client.projects.find((p) => p.slug === slug);
     if (project) {
       project.status = status;
       project.updatedAt = new Date().toISOString();
-      writeData(data);
+      await writeData(data);
       return project;
     }
   }
   throw new Error("Project not found");
 }
 
-export function updateProjectNotes(slug: string, notes: string): Project {
-  const data = readData();
+export async function updateProjectNotes(slug: string, notes: string): Promise<Project> {
+  const data = await readData();
   for (const client of data.clients) {
     const project = client.projects.find((p) => p.slug === slug);
     if (project) {
       project.notes = notes;
       project.updatedAt = new Date().toISOString();
-      writeData(data);
+      await writeData(data);
       return project;
     }
   }
   throw new Error("Project not found");
 }
 
-export function addProjectScreenshots(
+export async function addProjectScreenshots(
   slug: string,
   newScreenshots: string[]
-): Project {
-  const data = readData();
+): Promise<Project> {
+  const data = await readData();
   for (const client of data.clients) {
     const project = client.projects.find((p) => p.slug === slug);
     if (project) {
       project.screenshots = [...project.screenshots, ...newScreenshots];
       project.updatedAt = new Date().toISOString();
-      writeData(data);
+      await writeData(data);
       return project;
     }
   }
   throw new Error("Project not found");
 }
 
-export function updateProjectExpiry(
+export async function updateProjectExpiry(
   slug: string,
   expiresAt: string | null
-): Project {
-  const data = readData();
+): Promise<Project> {
+  const data = await readData();
   for (const client of data.clients) {
     const project = client.projects.find((p) => p.slug === slug);
     if (project) {
       project.expiresAt = expiresAt;
       project.updatedAt = new Date().toISOString();
-      writeData(data);
+      await writeData(data);
       return project;
     }
   }
   throw new Error("Project not found");
 }
 
-export function incrementDownloadCount(
+export async function incrementDownloadCount(
   slug: string,
   platform: Platform
-): { client: Client; project: Project } | null {
-  const data = readData();
+): Promise<{ client: Client; project: Project } | null> {
+  const data = await readData();
   for (const client of data.clients) {
     const project = client.projects.find((p) => p.slug === slug);
     if (project) {
       project.downloadCounts[platform] = (project.downloadCounts[platform] ?? 0) + 1;
-      writeData(data);
+      await writeData(data);
       return { client, project };
     }
   }

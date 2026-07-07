@@ -9,7 +9,7 @@ export async function PATCH(
   const { notes } = await req.json();
 
   try {
-    const project = updateProjectNotes(slug, String(notes ?? ""));
+    const project = await updateProjectNotes(slug, String(notes ?? ""));
     return NextResponse.json({ project });
   } catch (err) {
     return NextResponse.json(

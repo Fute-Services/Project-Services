@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { addClient, getAllClients } from "@/lib/clients";
 
 export async function GET() {
-  return NextResponse.json({ clients: getAllClients() });
+  return NextResponse.json({ clients: await getAllClients() });
 }
 
 export async function POST(req: NextRequest) {
@@ -13,6 +13,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Client name required" }, { status: 400 });
   }
 
-  const client = addClient(name);
+  const client = await addClient(name);
   return NextResponse.json({ client });
 }

@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const projectSlug = generateUniqueSlug(title);
+  const projectSlug = await generateUniqueSlug(title);
 
   const downloads: Record<Platform, string | null> = {
     windows: null,
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const project = addProject(clientId, {
+    const project = await addProject(clientId, {
       slug: projectSlug,
       title,
       description,

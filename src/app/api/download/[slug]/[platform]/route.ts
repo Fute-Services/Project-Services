@@ -19,7 +19,7 @@ export async function GET(
     return NextResponse.json({ error: "Invalid platform" }, { status: 400 });
   }
 
-  const result = getProjectBySlug(slug);
+  const result = await getProjectBySlug(slug);
   if (!result) {
     return NextResponse.json({ error: "Project not found" }, { status: 404 });
   }
@@ -35,7 +35,7 @@ export async function GET(
     return NextResponse.json({ error: "File not available" }, { status: 404 });
   }
 
-  const updated = incrementDownloadCount(slug, platform as Platform);
+  const updated = await incrementDownloadCount(slug, platform as Platform);
 
   if (updated) {
     sendDownloadEmail(updated.client, updated.project, platform as Platform).catch(

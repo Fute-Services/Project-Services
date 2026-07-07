@@ -15,7 +15,7 @@ export async function PATCH(
   }
 
   try {
-    const project = updateProjectStatus(slug, status);
+    const project = await updateProjectStatus(slug, status);
     return NextResponse.json({ project });
   } catch (err) {
     return NextResponse.json(

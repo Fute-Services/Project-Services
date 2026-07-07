@@ -24,6 +24,6 @@ export async function sendDownloadEmail(
     from: SMTP_USER,
     to: NOTIFY_EMAIL,
     subject: `Download: ${client.name} — ${project.title} (${platform})`,
-    text: `${client.name} ne "${project.title}" (v${project.version}) ${platform} platform ke liye download kiya.\n\nTotal downloads (${platform}): ${project.downloadCounts[platform]}`,
+    text: `${client.name} downloaded "${project.title}" (v${project.version}) for ${platform}.\n\nTotal downloads (${platform}): ${project.downloadCounts[platform]}`,
   });
 }

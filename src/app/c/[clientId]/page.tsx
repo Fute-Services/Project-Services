@@ -8,7 +8,7 @@ export default async function ClientPortalPage({
   params: Promise<{ clientId: string }>;
 }) {
   const { clientId } = await params;
-  const client = getClientById(clientId);
+  const client = await getClientById(clientId);
 
   if (!client) notFound();
 

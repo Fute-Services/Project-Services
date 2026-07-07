@@ -7,7 +7,7 @@ export async function POST(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
-  const existing = getProjectBySlug(slug);
+  const existing = await getProjectBySlug(slug);
   if (!existing) {
     return NextResponse.json({ error: "Project not found" }, { status: 404 });
   }
@@ -24,6 +24,6 @@ export async function POST(
     urls.push(await saveScreenshot(file, existing.client.id, slug));
   }
 
-  const project = addProjectScreenshots(slug, urls);
+  const project = await addProjectScreenshots(slug, urls);
   return NextResponse.json({ project });
 }
