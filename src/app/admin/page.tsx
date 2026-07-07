@@ -11,6 +11,7 @@ import WhatsAppShareButton from "./whatsapp-share-button";
 import EmailShareButton from "./email-share-button";
 import NotesEditor from "./notes-editor";
 import ScreenshotsUploader from "./screenshots-uploader";
+import EditProjectForm from "./edit-project-form";
 import type { ProjectStatus } from "@/lib/clients";
 
 type Client = {
@@ -19,6 +20,7 @@ type Client = {
   projects: {
     slug: string;
     title: string;
+    description: string;
     icon: string;
     version: string;
     status: ProjectStatus;
@@ -36,6 +38,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [openProjectForm, setOpenProjectForm] = useState<string | null>(null);
   const [openVersionForm, setOpenVersionForm] = useState<string | null>(null);
+  const [openEditForm, setOpenEditForm] = useState<string | null>(null);
   const [search, setSearch] = useState("");
 
   async function loadClients() {
@@ -203,6 +206,16 @@ export default function AdminPage() {
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() =>
+                              setOpenEditForm(
+                                openEditForm === project.slug ? null : project.slug
+                              )
+                            }
+                            className="shrink-0 rounded-lg bg-neutral-800 px-3 py-1.5 text-xs font-medium text-neutral-100 hover:bg-neutral-700"
+                          >
+                            {openEditForm === project.slug ? "Cancel" : "Edit"}
+                          </button>
+                          <button
+                            onClick={() =>
                               setOpenVersionForm(
                                 openVersionForm === project.slug ? null : project.slug
                               )
@@ -216,6 +229,22 @@ export default function AdminPage() {
                           <CopyLinkButton slug={project.slug} />
                         </div>
                       </div>
+
+                      {openEditForm === project.slug && (
+                        <div className="mt-3">
+                          <EditProjectForm
+                            slug={project.slug}
+                            initialTitle={project.title}
+                            initialDescription={project.description}
+                            initialIcon={project.icon}
+                            onSaved={() => {
+                              setOpenEditForm(null);
+                              loadClients();
+                            }}
+                            onCancel={() => setOpenEditForm(null)}
+                          />
+                        </div>
+                      )}
 
                       {openVersionForm === project.slug && (
                         <div className="mt-3">

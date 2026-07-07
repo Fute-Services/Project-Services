@@ -246,6 +246,25 @@ export async function addProjectScreenshots(
   throw new Error("Project not found");
 }
 
+export async function updateProjectDetails(
+  slug: string,
+  input: { title: string; description: string; icon?: string }
+): Promise<Project> {
+  const data = await readData();
+  for (const client of data.clients) {
+    const project = client.projects.find((p) => p.slug === slug);
+    if (project) {
+      project.title = input.title;
+      project.description = input.description;
+      if (input.icon) project.icon = input.icon;
+      project.updatedAt = new Date().toISOString();
+      await writeData(data);
+      return project;
+    }
+  }
+  throw new Error("Project not found");
+}
+
 export async function updateProjectExpiry(
   slug: string,
   expiresAt: string | null
