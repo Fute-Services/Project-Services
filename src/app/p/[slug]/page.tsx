@@ -35,10 +35,6 @@ export default async function ProjectPage({
         )}
 
         <h1 className="text-2xl font-semibold">{project.title}</h1>
-        <p className="mt-2 text-neutral-400">{project.description}</p>
-        <p className="mt-1 text-sm text-neutral-500">
-          {client.name} · v{project.version}
-        </p>
 
         {project.screenshots.length > 0 && (
           <div className="mt-6 flex gap-3 overflow-x-auto pb-1">
