@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { ProjectDownloads } from "@/lib/clients";
-import GithubReleasePicker from "./github-release-picker";
+import PlatformGithubPicker from "./platform-github-picker";
 
 export default function AddVersionForm({
   slug,
@@ -16,11 +16,16 @@ export default function AddVersionForm({
   const [macFile, setMacFile] = useState<File | null>(null);
   const [androidFile, setAndroidFile] = useState<File | null>(null);
   const [githubUrls, setGithubUrls] = useState<Partial<ProjectDownloads>>({});
+  const [githubRepo, setGithubRepo] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  function handleGithubApply(downloads: Partial<ProjectDownloads>, ghVersion: string) {
-    setGithubUrls(downloads);
+  function handleGithubApply(
+    platform: keyof ProjectDownloads,
+    url: string,
+    ghVersion: string
+  ) {
+    setGithubUrls((prev) => ({ ...prev, [platform]: url }));
     if (ghVersion) setVersion(ghVersion);
   }
 
@@ -89,6 +94,12 @@ export default function AddVersionForm({
           {githubUrls.windows && !windowsFile && (
             <span className="text-green-400">Linked from GitHub ✓</span>
           )}
+          <PlatformGithubPicker
+            platform="windows"
+            repo={githubRepo}
+            onRepoChange={setGithubRepo}
+            onApply={(url, v) => handleGithubApply("windows", url, v)}
+          />
         </label>
         <label className="flex flex-col gap-1">
           Mac (.dmg)
@@ -101,6 +112,12 @@ export default function AddVersionForm({
           {githubUrls.mac && !macFile && (
             <span className="text-green-400">Linked from GitHub ✓</span>
           )}
+          <PlatformGithubPicker
+            platform="mac"
+            repo={githubRepo}
+            onRepoChange={setGithubRepo}
+            onApply={(url, v) => handleGithubApply("mac", url, v)}
+          />
         </label>
         <label className="flex flex-col gap-1">
           Android (.apk)
@@ -113,13 +130,17 @@ export default function AddVersionForm({
           {githubUrls.android && !androidFile && (
             <span className="text-green-400">Linked from GitHub ✓</span>
           )}
+          <PlatformGithubPicker
+            platform="android"
+            repo={githubRepo}
+            onRepoChange={setGithubRepo}
+            onApply={(url, v) => handleGithubApply("android", url, v)}
+          />
         </label>
       </div>
       <p className="text-xs text-neutral-500">
         Leave a platform blank to keep its existing link.
       </p>
-
-      <GithubReleasePicker onApply={handleGithubApply} />
 
       {error && <p className="text-xs text-red-400">{error}</p>}
 

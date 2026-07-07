@@ -135,6 +135,7 @@ export async function addProject(
     title: string;
     description: string;
     version: string;
+    icon?: string;
     downloads: ProjectDownloads;
     expiresAt?: string | null;
     screenshots?: string[];
@@ -151,7 +152,7 @@ export async function addProject(
     title: input.title,
     description: input.description,
     version: input.version,
-    icon: "",
+    icon: input.icon ?? "",
     downloads: input.downloads,
     downloadCounts: { windows: 0, mac: 0, android: 0 },
     versions: [{ version: input.version, downloads: input.downloads, createdAt: now }],

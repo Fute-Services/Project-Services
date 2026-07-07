@@ -33,12 +33,26 @@ export default async function ClientPortalPage({
             <Link
               key={project.slug}
               href={`/p/${project.slug}`}
-              className="rounded-xl border border-neutral-800 px-4 py-3 hover:bg-neutral-900"
+              className="flex items-center gap-3 rounded-xl border border-neutral-800 px-4 py-3 hover:bg-neutral-900"
             >
-              <p className="font-medium">{project.title}</p>
-              <p className="text-xs text-neutral-500">
-                {project.description} · v{project.version}
-              </p>
+              {project.icon ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={project.icon}
+                  alt={`${project.title} icon`}
+                  className="h-10 w-10 shrink-0 rounded-lg object-cover"
+                />
+              ) : (
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-neutral-800 text-sm font-semibold">
+                  {project.title.charAt(0)}
+                </div>
+              )}
+              <div>
+                <p className="font-medium">{project.title}</p>
+                <p className="text-xs text-neutral-500">
+                  {project.description} · v{project.version}
+                </p>
+              </div>
             </Link>
           ))}
         </div>

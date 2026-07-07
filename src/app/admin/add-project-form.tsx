@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { ProjectDownloads } from "@/lib/clients";
-import GithubReleasePicker from "./github-release-picker";
+import PlatformGithubPicker from "./platform-github-picker";
 
 export default function AddProjectForm({
   clientId,
@@ -14,16 +14,23 @@ export default function AddProjectForm({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [version, setVersion] = useState("1.0.0");
+  const [iconFile, setIconFile] = useState<File | null>(null);
+  const [iconPreview, setIconPreview] = useState("");
   const [windowsFile, setWindowsFile] = useState<File | null>(null);
   const [macFile, setMacFile] = useState<File | null>(null);
   const [androidFile, setAndroidFile] = useState<File | null>(null);
   const [githubUrls, setGithubUrls] = useState<Partial<ProjectDownloads>>({});
+  const [githubRepo, setGithubRepo] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  function handleGithubApply(downloads: Partial<ProjectDownloads>, ghVersion: string) {
-    setGithubUrls(downloads);
+  function handleGithubApply(
+    platform: keyof ProjectDownloads,
+    url: string,
+    ghVersion: string
+  ) {
+    setGithubUrls((prev) => ({ ...prev, [platform]: url }));
     if (ghVersion) setVersion(ghVersion);
   }
 
@@ -50,6 +57,7 @@ export default function AddProjectForm({
     form.set("description", description);
     form.set("version", version);
     if (expiresAt) form.set("expiresAt", expiresAt);
+    if (iconFile) form.set("icon", iconFile);
     if (windowsFile) form.set("windows", windowsFile);
     else if (githubUrls.windows) form.set("windowsUrl", githubUrls.windows);
     if (macFile) form.set("mac", macFile);
@@ -74,6 +82,34 @@ export default function AddProjectForm({
       onSubmit={handleSubmit}
       className="flex flex-col gap-3 rounded-xl border border-neutral-800 p-4"
     >
+      <div className="flex items-center gap-3">
+        {iconPreview ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={iconPreview}
+            alt="App icon preview"
+            className="h-12 w-12 shrink-0 rounded-lg object-cover"
+          />
+        ) : (
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-neutral-900 text-xs text-neutral-600">
+            Icon
+          </div>
+        )}
+        <label className="text-xs text-neutral-400">
+          App icon (optional)
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files?.[0] ?? null;
+              setIconFile(file);
+              setIconPreview(file ? URL.createObjectURL(file) : "");
+            }}
+            className="mt-1 block text-xs"
+          />
+        </label>
+      </div>
+
       <div className="grid grid-cols-2 gap-3">
         <input
           value={title}
@@ -107,6 +143,12 @@ export default function AddProjectForm({
           {githubUrls.windows && !windowsFile && (
             <span className="text-green-400">Linked from GitHub ✓</span>
           )}
+          <PlatformGithubPicker
+            platform="windows"
+            repo={githubRepo}
+            onRepoChange={setGithubRepo}
+            onApply={(url, v) => handleGithubApply("windows", url, v)}
+          />
         </label>
         <label className="flex flex-col gap-1">
           Mac (.dmg)
@@ -119,6 +161,12 @@ export default function AddProjectForm({
           {githubUrls.mac && !macFile && (
             <span className="text-green-400">Linked from GitHub ✓</span>
           )}
+          <PlatformGithubPicker
+            platform="mac"
+            repo={githubRepo}
+            onRepoChange={setGithubRepo}
+            onApply={(url, v) => handleGithubApply("mac", url, v)}
+          />
         </label>
         <label className="flex flex-col gap-1">
           Android (.apk)
@@ -131,10 +179,14 @@ export default function AddProjectForm({
           {githubUrls.android && !androidFile && (
             <span className="text-green-400">Linked from GitHub ✓</span>
           )}
+          <PlatformGithubPicker
+            platform="android"
+            repo={githubRepo}
+            onRepoChange={setGithubRepo}
+            onApply={(url, v) => handleGithubApply("android", url, v)}
+          />
         </label>
       </div>
-
-      <GithubReleasePicker onApply={handleGithubApply} />
 
       <label className="flex flex-col gap-1 text-xs text-neutral-400">
         Link expiry (optional)

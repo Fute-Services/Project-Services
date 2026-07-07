@@ -18,9 +18,18 @@ export default async function ProjectPage({
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-6 py-16 bg-neutral-950 text-neutral-100">
       <div className="w-full max-w-md text-center">
-        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-neutral-800 text-3xl font-semibold">
-          {project.title.charAt(0)}
-        </div>
+        {project.icon ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={project.icon}
+            alt={`${project.title} icon`}
+            className="mx-auto mb-6 h-20 w-20 rounded-2xl object-cover"
+          />
+        ) : (
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-neutral-800 text-3xl font-semibold">
+            {project.title.charAt(0)}
+          </div>
+        )}
 
         <h1 className="text-2xl font-semibold">{project.title}</h1>
         <p className="mt-2 text-neutral-400">{project.description}</p>

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { addProject, generateUniqueSlug, type Platform } from "@/lib/clients";
-import { saveFile } from "@/lib/upload";
+import { saveFile, saveIcon } from "@/lib/upload";
 
 const PLATFORMS: Platform[] = ["windows", "mac", "android"];
 
@@ -38,12 +38,19 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  const iconFile = form.get("icon");
+  const icon =
+    iconFile instanceof File && iconFile.size > 0
+      ? await saveIcon(iconFile, clientId, projectSlug)
+      : "";
+
   try {
     const project = await addProject(clientId, {
       slug: projectSlug,
       title,
       description,
       version: version || "1.0.0",
+      icon,
       downloads,
       expiresAt: expiresAt ? new Date(expiresAt).toISOString() : null,
     });

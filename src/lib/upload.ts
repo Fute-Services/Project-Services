@@ -43,3 +43,13 @@ export async function saveScreenshot(
   const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}${ext}`;
   return store(`uploads/${clientId}/${projectSlug}/screenshots/${filename}`, file);
 }
+
+export async function saveIcon(
+  file: File,
+  clientId: string,
+  projectSlug: string
+): Promise<string> {
+  const ext = path.extname(file.name) || ".png";
+  const filename = `icon-${Date.now()}${ext}`;
+  return store(`uploads/${clientId}/${projectSlug}/${filename}`, file);
+}
