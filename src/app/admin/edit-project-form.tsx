@@ -155,13 +155,30 @@ export default function EditProjectForm({
       </div>
 
       <label className="flex flex-col gap-1 text-xs text-neutral-400">
-        Public page background (CSS color, e.g. #0a0a0a or transparent for default)
-        <input
-          value={background}
-          onChange={(e) => setBackground(e.target.value)}
-          placeholder="Default"
-          className="rounded-lg bg-neutral-900 px-3 py-2 text-sm text-neutral-100 outline-none placeholder:text-neutral-600"
-        />
+        Public page background
+        <div className="flex items-center gap-2">
+          <input
+            type="color"
+            value={/^#[0-9a-fA-F]{6}$/.test(background) ? background : "#0a0a0a"}
+            onChange={(e) => setBackground(e.target.value)}
+            className="h-9 w-9 shrink-0 cursor-pointer rounded-lg border border-neutral-800 bg-neutral-900 p-1"
+          />
+          <input
+            value={background}
+            onChange={(e) => setBackground(e.target.value)}
+            placeholder="Default (e.g. #0a0a0a)"
+            className="flex-1 rounded-lg bg-neutral-900 px-3 py-2 text-sm text-neutral-100 outline-none placeholder:text-neutral-600"
+          />
+          {background && (
+            <button
+              type="button"
+              onClick={() => setBackground("")}
+              className="shrink-0 text-xs text-neutral-500 hover:text-neutral-300"
+            >
+              Reset
+            </button>
+          )}
+        </div>
       </label>
 
       {error && <p className="text-xs text-red-400">{error}</p>}
