@@ -19,12 +19,18 @@ export default function GithubReleasePicker({
   const [open, setOpen] = useState(false);
   const [repo, setRepo] = useState("");
   const [releases, setReleases] = useState<Release[]>([]);
-  const [selectedTag, setSelectedTag] = useState("");
-  const [assets, setAssets] = useState<Asset[]>([]);
+  const [loadedTags, setLoadedTags] = useState<string[]>([]);
+  const [assetsByTag, setAssetsByTag] = useState<Record<string, Asset[]>>({});
   const [assignments, setAssignments] = useState<Record<string, string>>({});
   const [version, setVersion] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Assets pooled across every release the user has loaded, so Windows can
+  // come from one release and Android from another without overwriting.
+  const assets: (Asset & { tag: string })[] = loadedTags.flatMap((tag) =>
+    (assetsByTag[tag] ?? []).map((a) => ({ ...a, tag }))
+  );
 
   async function loadReleases() {
     if (!repo.includes("/")) {
@@ -34,7 +40,9 @@ export default function GithubReleasePicker({
     setLoading(true);
     setError("");
     setReleases([]);
-    setAssets([]);
+    setLoadedTags([]);
+    setAssetsByTag({});
+    setAssignments({});
 
     const res = await fetch(`/api/github/releases?repo=${encodeURIComponent(repo)}`);
     const data = await res.json();
@@ -51,7 +59,8 @@ export default function GithubReleasePicker({
   }
 
   async function loadAssets(tag: string) {
-    setSelectedTag(tag);
+    if (loadedTags.includes(tag)) return;
+
     setLoading(true);
     setError("");
 
@@ -66,17 +75,20 @@ export default function GithubReleasePicker({
       return;
     }
 
-    setAssets(data.assets);
+    setAssetsByTag((prev) => ({ ...prev, [tag]: data.assets }));
+    setLoadedTags((prev) => [...prev, tag]);
     setVersion(data.version);
 
     // Auto-map by file extension — one-tap default, still overridable below.
-    const auto: Record<string, string> = {};
-    for (const asset of data.assets as Asset[]) {
-      if (asset.guessedPlatform && !auto[asset.guessedPlatform]) {
-        auto[asset.guessedPlatform] = asset.url;
+    setAssignments((prev) => {
+      const next = { ...prev };
+      for (const asset of data.assets as Asset[]) {
+        if (asset.guessedPlatform && !next[asset.guessedPlatform]) {
+          next[asset.guessedPlatform] = asset.url;
+        }
       }
-    }
-    setAssignments(auto);
+      return next;
+    });
   }
 
   function handleApply() {
@@ -125,28 +137,50 @@ Or import from a GitHub Release
       {error && <p className="text-xs text-red-400">{error}</p>}
 
       {releases.length > 0 && (
-        <select
-          value={selectedTag}
-          onChange={(e) => loadAssets(e.target.value)}
-          className="rounded-lg bg-neutral-900 px-3 py-2 text-sm outline-none"
-        >
-          <option value="">Choose a release...</option>
-          {releases.map((r) => (
-            <option key={r.tag} value={r.tag}>
-              {r.name} ({r.tag})
-            </option>
-          ))}
-        </select>
+        <div className="flex flex-col gap-1">
+          <p className="text-xs text-neutral-500">
+            Load a release to pull in its assets — load more than one if
+            Windows/Mac/Android files live in different releases:
+          </p>
+          {releases.map((r) => {
+            const isLoaded = loadedTags.includes(r.tag);
+            return (
+              <button
+                key={r.tag}
+                type="button"
+                onClick={() => loadAssets(r.tag)}
+                disabled={loading || isLoaded}
+                className="flex items-center justify-between rounded-lg bg-neutral-900 px-3 py-2 text-left text-xs hover:bg-neutral-800 disabled:opacity-60"
+              >
+                <span>
+                  {r.name} <span className="text-neutral-500">({r.tag})</span>
+                </span>
+                <span className="text-neutral-500">
+                  {isLoaded ? "Loaded" : "Load assets"}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       )}
 
       {assets.length > 0 && (
         <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2 text-xs">
+            <span className="w-16 shrink-0 text-neutral-400">Version</span>
+            <input
+              value={version}
+              onChange={(e) => setVersion(e.target.value)}
+              className="flex-1 rounded-lg bg-neutral-900 px-2 py-1.5 outline-none"
+            />
+          </div>
+
           <p className="text-xs text-neutral-500">
             Auto-detected (by file extension) — override if needed:
           </p>
           {(["windows", "mac", "android"] as const).map((platform) => (
             <div key={platform} className="flex items-center gap-2 text-xs">
-              <span className="w-16 capitalize text-neutral-400">{platform}</span>
+              <span className="w-16 shrink-0 capitalize text-neutral-400">{platform}</span>
               <select
                 value={assignments[platform] ?? ""}
                 onChange={(e) =>
@@ -156,8 +190,8 @@ Or import from a GitHub Release
               >
                 <option value="">— none —</option>
                 {assets.map((a) => (
-                  <option key={a.name} value={a.url}>
-                    {a.name}
+                  <option key={a.url} value={a.url}>
+                    [{a.tag}] {a.name}
                   </option>
                 ))}
               </select>
