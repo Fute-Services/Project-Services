@@ -39,7 +39,7 @@ export default function DownloadButtons({
   if (platforms.length === 0) {
     return (
       <p className="mt-10 text-sm text-neutral-500">
-        Is app ke liye koi download available nahi hai.
+        No downloads available for this app.
       </p>
     );
   }

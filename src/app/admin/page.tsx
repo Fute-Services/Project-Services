@@ -75,14 +75,14 @@ export default function AdminPage() {
         );
 
   return (
-    <main className="min-h-screen bg-neutral-950 text-neutral-100 px-6 py-10">
-      <div className="mx-auto max-w-3xl">
+    <main className="min-h-screen bg-neutral-950 text-neutral-100">
+      <div className="mx-auto max-w-3xl px-6 py-10">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-semibold">App Distribution Portal</h1>
             <p className="mt-1 text-sm text-neutral-500">
-              Naya client add karo, uske apps upload karo, aur client ko link
-              share karo.
+              Add a new client, upload their apps, and share the link with
+              them.
             </p>
           </div>
           <button
@@ -98,7 +98,7 @@ export default function AdminPage() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search client ya app..."
+            placeholder="Search client or app..."
             className="min-w-[220px] flex-1 rounded-lg bg-neutral-900 px-3 py-2 text-sm outline-none placeholder:text-neutral-600"
           />
         </div>
@@ -109,7 +109,7 @@ export default function AdminPage() {
 
         {!loading && query && filteredClients.length === 0 && (
           <p className="mt-8 text-sm text-neutral-500">
-            &quot;{search}&quot; se kuch match nahi hua.
+            No matches for &quot;{search}&quot;.
           </p>
         )}
 
@@ -154,7 +154,7 @@ export default function AdminPage() {
               <div className="mt-3 divide-y divide-neutral-800 rounded-xl border border-neutral-800">
                 {client.projects.length === 0 && (
                   <p className="px-4 py-3 text-xs text-neutral-500">
-                    Abhi koi app nahi hai — &quot;+ Add App&quot; se pehla app upload karo.
+                    No apps yet — use &quot;+ Add App&quot; to upload the first one.
                   </p>
                 )}
                 {client.projects.map((project) => {
@@ -234,7 +234,7 @@ export default function AdminPage() {
 
         {!loading && clients.length === 0 && (
           <p className="mt-10 text-sm text-neutral-500">
-            Abhi koi client add nahi hua — upar se pehla client add karo.
+            No clients yet — add your first one above.
           </p>
         )}
       </div>

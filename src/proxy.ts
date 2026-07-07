@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const SESSION_COOKIE = "admin_session";
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const sessionValue = process.env.SESSION_SECRET || process.env.ADMIN_PASSWORD;
 
   // If no admin password is configured, leave the panel open (local/dev use).

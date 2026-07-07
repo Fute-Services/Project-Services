@@ -30,14 +30,14 @@ export default function AddProjectForm({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!title.trim()) {
-      setError("App ka naam daalo");
+      setError("Enter the app name");
       return;
     }
     const hasAny =
       windowsFile || macFile || androidFile ||
       githubUrls.windows || githubUrls.mac || githubUrls.android;
     if (!hasAny) {
-      setError("Kam se kam ek platform ki file upload karo ya GitHub se import karo");
+      setError("Upload at least one platform's file or import from GitHub");
       return;
     }
 
@@ -62,7 +62,7 @@ export default function AddProjectForm({
 
     if (!res.ok) {
       const data = await res.json();
-      setError(data.error ?? "Kuch galat ho gaya");
+      setError(data.error ?? "Something went wrong");
       return;
     }
 
@@ -78,7 +78,7 @@ export default function AddProjectForm({
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="App ka naam"
+          placeholder="App name"
           className="rounded-lg bg-neutral-900 px-3 py-2 text-sm outline-none placeholder:text-neutral-600"
         />
         <input
@@ -105,7 +105,7 @@ export default function AddProjectForm({
             className="text-xs"
           />
           {githubUrls.windows && !windowsFile && (
-            <span className="text-green-400">GitHub se linked ✓</span>
+            <span className="text-green-400">Linked from GitHub ✓</span>
           )}
         </label>
         <label className="flex flex-col gap-1">
@@ -117,7 +117,7 @@ export default function AddProjectForm({
             className="text-xs"
           />
           {githubUrls.mac && !macFile && (
-            <span className="text-green-400">GitHub se linked ✓</span>
+            <span className="text-green-400">Linked from GitHub ✓</span>
           )}
         </label>
         <label className="flex flex-col gap-1">
@@ -129,7 +129,7 @@ export default function AddProjectForm({
             className="text-xs"
           />
           {githubUrls.android && !androidFile && (
-            <span className="text-green-400">GitHub se linked ✓</span>
+            <span className="text-green-400">Linked from GitHub ✓</span>
           )}
         </label>
       </div>

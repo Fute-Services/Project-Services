@@ -10,7 +10,7 @@ export default function EmailShareButton({
   function handleClick() {
     const url = `${window.location.origin}/p/${slug}`;
     const subject = encodeURIComponent(`${title} — download link`);
-    const body = encodeURIComponent(`${title} download karne ke liye link:\n${url}`);
+    const body = encodeURIComponent(`Link to download ${title}:\n${url}`);
     window.location.href = `mailto:?subject=${subject}&body=${body}`;
   }
 

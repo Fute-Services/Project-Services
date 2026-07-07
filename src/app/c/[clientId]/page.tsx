@@ -15,18 +15,18 @@ export default async function ClientPortalPage({
   const activeProjects = client.projects.filter((p) => !isExpired(p));
 
   return (
-    <main className="min-h-screen px-6 py-16 bg-neutral-950 text-neutral-100">
-      <div className="mx-auto w-full max-w-md text-center">
+    <main className="min-h-screen bg-neutral-950 text-neutral-100">
+      <div className="mx-auto w-full max-w-md px-6 py-16 text-center">
         <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-neutral-800 text-3xl font-semibold">
           {client.name.charAt(0)}
         </div>
         <h1 className="text-2xl font-semibold">{client.name}</h1>
-        <p className="mt-2 text-neutral-400">Aapke saare apps yahan hain</p>
+        <p className="mt-2 text-neutral-400">All your apps in one place</p>
 
         <div className="mt-10 flex flex-col gap-3 text-left">
           {activeProjects.length === 0 && (
             <p className="text-center text-sm text-neutral-500">
-              Abhi koi app available nahi hai.
+              No apps available yet.
             </p>
           )}
           {activeProjects.map((project) => (

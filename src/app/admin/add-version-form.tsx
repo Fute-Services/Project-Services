@@ -27,14 +27,14 @@ export default function AddVersionForm({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!version.trim()) {
-      setError("Version number daalo");
+      setError("Enter a version number");
       return;
     }
     const hasAny =
       windowsFile || macFile || androidFile ||
       githubUrls.windows || githubUrls.mac || githubUrls.android;
     if (!hasAny) {
-      setError("Kam se kam ek file upload karo ya GitHub se import karo");
+      setError("Upload at least one file or import from GitHub");
       return;
     }
 
@@ -58,7 +58,7 @@ export default function AddVersionForm({
 
     if (!res.ok) {
       const data = await res.json();
-      setError(data.error ?? "Kuch galat ho gaya");
+      setError(data.error ?? "Something went wrong");
       return;
     }
 
@@ -73,7 +73,7 @@ export default function AddVersionForm({
       <input
         value={version}
         onChange={(e) => setVersion(e.target.value)}
-        placeholder="Naya version (e.g. 1.3.0)"
+        placeholder="New version (e.g. 1.3.0)"
         className="rounded-lg bg-neutral-900 px-3 py-2 text-sm outline-none placeholder:text-neutral-600"
       />
 
@@ -87,7 +87,7 @@ export default function AddVersionForm({
             className="text-xs"
           />
           {githubUrls.windows && !windowsFile && (
-            <span className="text-green-400">GitHub se linked ✓</span>
+            <span className="text-green-400">Linked from GitHub ✓</span>
           )}
         </label>
         <label className="flex flex-col gap-1">
@@ -99,7 +99,7 @@ export default function AddVersionForm({
             className="text-xs"
           />
           {githubUrls.mac && !macFile && (
-            <span className="text-green-400">GitHub se linked ✓</span>
+            <span className="text-green-400">Linked from GitHub ✓</span>
           )}
         </label>
         <label className="flex flex-col gap-1">
@@ -111,12 +111,12 @@ export default function AddVersionForm({
             className="text-xs"
           />
           {githubUrls.android && !androidFile && (
-            <span className="text-green-400">GitHub se linked ✓</span>
+            <span className="text-green-400">Linked from GitHub ✓</span>
           )}
         </label>
       </div>
       <p className="text-xs text-neutral-500">
-        Jo platform ki file nahi doge, uska purana link wahi rahega.
+        Leave a platform blank to keep its existing link.
       </p>
 
       <GithubReleasePicker onApply={handleGithubApply} />

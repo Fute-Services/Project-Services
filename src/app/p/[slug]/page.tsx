@@ -44,8 +44,7 @@ export default async function ProjectPage({
 
         {expired ? (
           <p className="mt-10 text-sm text-neutral-500">
-            Ye link expire ho chuka hai. Naya link ke liye {client.name} se
-            contact karo.
+            This link has expired. Contact {client.name} for a new link.
           </p>
         ) : (
           <DownloadButtons slug={project.slug} downloads={project.downloads} />

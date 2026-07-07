@@ -16,7 +16,7 @@ export default function ScreenshotsUploader({
 
   async function handleUpload() {
     if (!files || files.length === 0) {
-      setError("Kam se kam ek image choose karo");
+      setError("Choose at least one image");
       return;
     }
     setSaving(true);
@@ -33,7 +33,7 @@ export default function ScreenshotsUploader({
 
     if (!res.ok) {
       const data = await res.json();
-      setError(data.error ?? "Upload fail ho gaya");
+      setError(data.error ?? "Upload failed");
       return;
     }
 

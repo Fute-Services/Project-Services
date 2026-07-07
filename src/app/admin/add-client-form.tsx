@@ -28,7 +28,7 @@ export default function AddClientForm({
 
     if (!res.ok) {
       const data = await res.json();
-      setError(data.error ?? "Kuch galat ho gaya");
+      setError(data.error ?? "Something went wrong");
       return;
     }
 
@@ -57,7 +57,7 @@ export default function AddClientForm({
         autoFocus
         value={name}
         onChange={(e) => setName(e.target.value)}
-        placeholder="Client ka naam (e.g. ABC Traders)"
+        placeholder="Client name (e.g. ABC Traders)"
         className="flex-1 rounded-lg bg-neutral-900 px-3 py-2 text-sm outline-none placeholder:text-neutral-600"
       />
       <button

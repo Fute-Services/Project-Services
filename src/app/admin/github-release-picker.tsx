@@ -41,12 +41,12 @@ export default function GithubReleasePicker({
     setLoading(false);
 
     if (!res.ok) {
-      setError(data.error ?? "Releases load nahi hue");
+      setError(data.error ?? "Failed to load releases");
       return;
     }
     setReleases(data.releases);
     if (data.releases.length === 0) {
-      setError("Is repo me koi release nahi mila");
+      setError("No releases found in this repo");
     }
   }
 
@@ -62,7 +62,7 @@ export default function GithubReleasePicker({
     setLoading(false);
 
     if (!res.ok) {
-      setError(data.error ?? "Assets load nahi hue");
+      setError(data.error ?? "Failed to load assets");
       return;
     }
 
@@ -98,7 +98,7 @@ export default function GithubReleasePicker({
         onClick={() => setOpen(true)}
         className="text-xs font-medium text-neutral-300 underline hover:text-white"
       >
-        Ya GitHub Release se import karo
+Or import from a GitHub Release
       </button>
     );
   }
@@ -130,7 +130,7 @@ export default function GithubReleasePicker({
           onChange={(e) => loadAssets(e.target.value)}
           className="rounded-lg bg-neutral-900 px-3 py-2 text-sm outline-none"
         >
-          <option value="">Release choose karo...</option>
+          <option value="">Choose a release...</option>
           {releases.map((r) => (
             <option key={r.tag} value={r.tag}>
               {r.name} ({r.tag})
@@ -142,7 +142,7 @@ export default function GithubReleasePicker({
       {assets.length > 0 && (
         <div className="flex flex-col gap-2">
           <p className="text-xs text-neutral-500">
-            Auto-detected (extension ke hisab se) — chaho to badal do:
+            Auto-detected (by file extension) — override if needed:
           </p>
           {(["windows", "mac", "android"] as const).map((platform) => (
             <div key={platform} className="flex items-center gap-2 text-xs">
