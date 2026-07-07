@@ -20,8 +20,10 @@ function detectPlatform(): Platform | null {
 }
 
 export default function DownloadButtons({
+  slug,
   downloads,
 }: {
+  slug: string;
   downloads: ProjectDownloads;
 }) {
   const [detected, setDetected] = useState<Platform | null>(null);
@@ -49,8 +51,7 @@ export default function DownloadButtons({
         return (
           <a
             key={platform}
-            href={downloads[platform] ?? undefined}
-            download
+            href={`/api/download/${slug}/${platform}`}
             className={
               "w-full rounded-xl px-5 py-3 text-sm font-medium transition-colors " +
               (isPrimary

@@ -1,28 +1,8 @@
-import fs from "fs";
-import path from "path";
 import { NextRequest, NextResponse } from "next/server";
-import { addProject, generateUniqueSlug } from "@/lib/clients";
+import { addProject, generateUniqueSlug, type Platform } from "@/lib/clients";
+import { saveFile } from "@/lib/upload";
 
-const PLATFORMS = ["windows", "mac", "android"] as const;
-type Platform = (typeof PLATFORMS)[number];
-
-async function saveFile(
-  file: File,
-  clientId: string,
-  projectSlug: string,
-  platform: Platform
-): Promise<string> {
-  const ext = path.extname(file.name) || "";
-  const dir = path.join(process.cwd(), "public", "uploads", clientId, projectSlug);
-  fs.mkdirSync(dir, { recursive: true });
-
-  const filename = `${platform}${ext}`;
-  const filePath = path.join(dir, filename);
-  const buffer = Buffer.from(await file.arrayBuffer());
-  fs.writeFileSync(filePath, buffer);
-
-  return `/uploads/${clientId}/${projectSlug}/${filename}`;
-}
+const PLATFORMS: Platform[] = ["windows", "mac", "android"];
 
 export async function POST(req: NextRequest) {
   const form = await req.formData();
@@ -31,6 +11,7 @@ export async function POST(req: NextRequest) {
   const title = String(form.get("title") ?? "").trim();
   const description = String(form.get("description") ?? "").trim();
   const version = String(form.get("version") ?? "").trim();
+  const expiresAt = String(form.get("expiresAt") ?? "").trim();
 
   if (!clientId || !title) {
     return NextResponse.json(
@@ -61,6 +42,7 @@ export async function POST(req: NextRequest) {
       description,
       version: version || "1.0.0",
       downloads,
+      expiresAt: expiresAt ? new Date(expiresAt).toISOString() : null,
     });
     return NextResponse.json({ project });
   } catch (err) {

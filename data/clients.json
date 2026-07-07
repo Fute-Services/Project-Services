@@ -15,7 +15,25 @@
             "mac": "https://example.com/files/abc/inventory-1.2.0-mac.dmg",
             "android": null
           },
-          "updatedAt": "2026-07-01T00:00:00.000Z"
+          "downloadCounts": {
+            "windows": 1,
+            "mac": 0,
+            "android": 0
+          },
+          "versions": [
+            {
+              "version": "1.2.0",
+              "downloads": {
+                "windows": "https://example.com/files/abc/inventory-1.2.0-win.exe",
+                "mac": "https://example.com/files/abc/inventory-1.2.0-mac.dmg",
+                "android": null
+              },
+              "createdAt": "2026-07-01T00:00:00.000Z"
+            }
+          ],
+          "status": "in_progress",
+          "expiresAt": null,
+          "updatedAt": "2026-07-07T08:03:11.676Z"
         }
       ]
     },
@@ -34,7 +52,25 @@
             "mac": null,
             "android": "https://example.com/files/xyz/pos-1.0.0.apk"
           },
-          "updatedAt": "2026-07-05T00:00:00.000Z"
+          "downloadCounts": {
+            "windows": 0,
+            "mac": 0,
+            "android": 0
+          },
+          "versions": [
+            {
+              "version": "1.0.0",
+              "downloads": {
+                "windows": null,
+                "mac": null,
+                "android": "https://example.com/files/xyz/pos-1.0.0.apk"
+              },
+              "createdAt": "2026-07-05T00:00:00.000Z"
+            }
+          ],
+          "status": "in_progress",
+          "expiresAt": null,
+          "updatedAt": "2026-07-07T08:02:12.038Z"
         }
       ]
     },

@@ -1,10 +1,20 @@
 import fs from "fs";
 import path from "path";
 
+export type Platform = "windows" | "mac" | "android";
+
 export type ProjectDownloads = {
   windows: string | null;
   mac: string | null;
   android: string | null;
+};
+
+export type ProjectStatus = "in_progress" | "delivered" | "pending_payment";
+
+export type VersionEntry = {
+  version: string;
+  downloads: ProjectDownloads;
+  createdAt: string;
 };
 
 export type Project = {
@@ -14,6 +24,10 @@ export type Project = {
   version: string;
   icon: string;
   downloads: ProjectDownloads;
+  downloadCounts: Record<Platform, number>;
+  versions: VersionEntry[];
+  status: ProjectStatus;
+  expiresAt: string | null;
   updatedAt: string;
 };
 
@@ -59,6 +73,11 @@ export function getProjectBySlug(
   return null;
 }
 
+export function isExpired(project: Project): boolean {
+  if (!project.expiresAt) return false;
+  return new Date(project.expiresAt).getTime() < Date.now();
+}
+
 export function addClient(name: string): Client {
   const data = readData();
   let id = slugify(name);
@@ -93,11 +112,14 @@ export function addProject(
     description: string;
     version: string;
     downloads: ProjectDownloads;
+    expiresAt?: string | null;
   }
 ): Project {
   const data = readData();
   const client = data.clients.find((c) => c.id === clientId);
   if (!client) throw new Error("Client not found");
+
+  const now = new Date().toISOString();
 
   const project: Project = {
     slug: input.slug,
@@ -106,10 +128,94 @@ export function addProject(
     version: input.version,
     icon: "",
     downloads: input.downloads,
-    updatedAt: new Date().toISOString(),
+    downloadCounts: { windows: 0, mac: 0, android: 0 },
+    versions: [{ version: input.version, downloads: input.downloads, createdAt: now }],
+    status: "in_progress",
+    expiresAt: input.expiresAt ?? null,
+    updatedAt: now,
   };
 
   client.projects.push(project);
   writeData(data);
   return project;
+}
+
+export function addProjectVersion(
+  slug: string,
+  input: { version: string; downloads: ProjectDownloads }
+): Project {
+  const data = readData();
+  for (const client of data.clients) {
+    const project = client.projects.find((p) => p.slug === slug);
+    if (project) {
+      const now = new Date().toISOString();
+      // Merge: keep previous platform links if this version didn't upload a file for that platform
+      const mergedDownloads: ProjectDownloads = {
+        windows: input.downloads.windows ?? project.downloads.windows,
+        mac: input.downloads.mac ?? project.downloads.mac,
+        android: input.downloads.android ?? project.downloads.android,
+      };
+      project.version = input.version;
+      project.downloads = mergedDownloads;
+      project.versions.push({
+        version: input.version,
+        downloads: input.downloads,
+        createdAt: now,
+      });
+      project.updatedAt = now;
+      writeData(data);
+      return project;
+    }
+  }
+  throw new Error("Project not found");
+}
+
+export function updateProjectStatus(
+  slug: string,
+  status: ProjectStatus
+): Project {
+  const data = readData();
+  for (const client of data.clients) {
+    const project = client.projects.find((p) => p.slug === slug);
+    if (project) {
+      project.status = status;
+      project.updatedAt = new Date().toISOString();
+      writeData(data);
+      return project;
+    }
+  }
+  throw new Error("Project not found");
+}
+
+export function updateProjectExpiry(
+  slug: string,
+  expiresAt: string | null
+): Project {
+  const data = readData();
+  for (const client of data.clients) {
+    const project = client.projects.find((p) => p.slug === slug);
+    if (project) {
+      project.expiresAt = expiresAt;
+      project.updatedAt = new Date().toISOString();
+      writeData(data);
+      return project;
+    }
+  }
+  throw new Error("Project not found");
+}
+
+export function incrementDownloadCount(
+  slug: string,
+  platform: Platform
+): { client: Client; project: Project } | null {
+  const data = readData();
+  for (const client of data.clients) {
+    const project = client.projects.find((p) => p.slug === slug);
+    if (project) {
+      project.downloadCounts[platform] = (project.downloadCounts[platform] ?? 0) + 1;
+      writeData(data);
+      return { client, project };
+    }
+  }
+  return null;
 }

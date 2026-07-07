@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getProjectBySlug } from "@/lib/clients";
+import { getProjectBySlug, isExpired } from "@/lib/clients";
 import DownloadButtons from "./download-buttons";
 
 export default async function ProjectPage({
@@ -13,6 +13,7 @@ export default async function ProjectPage({
   if (!result) notFound();
 
   const { client, project } = result;
+  const expired = isExpired(project);
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-6 py-16 bg-neutral-950 text-neutral-100">
@@ -27,7 +28,14 @@ export default async function ProjectPage({
           {client.name} · v{project.version}
         </p>
 
-        <DownloadButtons downloads={project.downloads} />
+        {expired ? (
+          <p className="mt-10 text-sm text-neutral-500">
+            Ye link expire ho chuka hai. Naya link ke liye {client.name} se
+            contact karo.
+          </p>
+        ) : (
+          <DownloadButtons slug={project.slug} downloads={project.downloads} />
+        )}
 
         <div className="mt-12 border-t border-neutral-800 pt-6 text-xs text-neutral-600">
           Powered by Project-Services

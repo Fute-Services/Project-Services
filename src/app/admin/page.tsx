@@ -1,9 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import CopyLinkButton from "./copy-link-button";
 import AddClientForm from "./add-client-form";
 import AddProjectForm from "./add-project-form";
+import AddVersionForm from "./add-version-form";
+import StatusSelect from "./status-select";
+import QrCodeButton from "./qr-code-button";
+import WhatsAppShareButton from "./whatsapp-share-button";
+import type { ProjectStatus } from "@/lib/clients";
 
 type Client = {
   id: string;
@@ -12,14 +18,19 @@ type Client = {
     slug: string;
     title: string;
     version: string;
+    status: ProjectStatus;
+    expiresAt: string | null;
+    downloadCounts: { windows: number; mac: number; android: number };
     downloads: { windows: string | null; mac: string | null; android: string | null };
   }[];
 };
 
 export default function AdminPage() {
+  const router = useRouter();
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [openProjectForm, setOpenProjectForm] = useState<string | null>(null);
+  const [openVersionForm, setOpenVersionForm] = useState<string | null>(null);
 
   async function loadClients() {
     setLoading(true);
@@ -33,14 +44,30 @@ export default function AdminPage() {
     loadClients();
   }, []);
 
+  async function handleLogout() {
+    await fetch("/api/admin/logout", { method: "POST" });
+    router.push("/admin/login");
+    router.refresh();
+  }
+
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100 px-6 py-10">
       <div className="mx-auto max-w-3xl">
-        <h1 className="text-xl font-semibold">App Distribution Portal</h1>
-        <p className="mt-1 text-sm text-neutral-500">
-          Naya client add karo, uske apps upload karo, aur client ko link
-          share karo.
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-semibold">App Distribution Portal</h1>
+            <p className="mt-1 text-sm text-neutral-500">
+              Naya client add karo, uske apps upload karo, aur client ko link
+              share karo.
+            </p>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="text-xs font-medium text-neutral-400 hover:text-white"
+          >
+            Logout
+          </button>
+        </div>
 
         <div className="mt-8">
           <AddClientForm onCreated={loadClients} />
@@ -91,19 +118,58 @@ export default function AdminPage() {
                   const platforms = Object.entries(project.downloads)
                     .filter(([, url]) => url)
                     .map(([platform]) => platform);
+                  const totalDownloads =
+                    project.downloadCounts.windows +
+                    project.downloadCounts.mac +
+                    project.downloadCounts.android;
 
                   return (
-                    <div
-                      key={project.slug}
-                      className="flex items-center justify-between gap-4 px-4 py-3"
-                    >
-                      <div>
-                        <p className="font-medium">{project.title}</p>
-                        <p className="text-xs text-neutral-500">
-                          v{project.version} · {platforms.join(", ") || "no files yet"}
-                        </p>
+                    <div key={project.slug} className="px-4 py-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium">{project.title}</p>
+                            <StatusSelect
+                              slug={project.slug}
+                              status={project.status}
+                              onChanged={loadClients}
+                            />
+                          </div>
+                          <p className="text-xs text-neutral-500">
+                            v{project.version} · {platforms.join(", ") || "no files yet"}{" "}
+                            · {totalDownloads} download{totalDownloads === 1 ? "" : "s"}
+                            {project.expiresAt &&
+                              ` · expires ${new Date(project.expiresAt).toLocaleDateString()}`}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() =>
+                              setOpenVersionForm(
+                                openVersionForm === project.slug ? null : project.slug
+                              )
+                            }
+                            className="shrink-0 rounded-lg bg-neutral-800 px-3 py-1.5 text-xs font-medium text-neutral-100 hover:bg-neutral-700"
+                          >
+                            {openVersionForm === project.slug ? "Cancel" : "+ Version"}
+                          </button>
+                          <WhatsAppShareButton slug={project.slug} title={project.title} />
+                          <QrCodeButton slug={project.slug} />
+                          <CopyLinkButton slug={project.slug} />
+                        </div>
                       </div>
-                      <CopyLinkButton slug={project.slug} />
+
+                      {openVersionForm === project.slug && (
+                        <div className="mt-3">
+                          <AddVersionForm
+                            slug={project.slug}
+                            onCreated={() => {
+                              setOpenVersionForm(null);
+                              loadClients();
+                            }}
+                          />
+                        </div>
+                      )}
                     </div>
                   );
                 })}
