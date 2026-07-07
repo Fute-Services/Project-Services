@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
@@ -38,7 +39,8 @@ export default function AdminLoginPage() {
         onSubmit={handleSubmit}
         className="w-full max-w-sm rounded-2xl border border-neutral-800 p-8 text-center"
       >
-        <h1 className="text-lg font-semibold">App Distribution Portal</h1>
+        <Image src="/logo.png" alt="Fute-Services" width={48} height={48} className="mx-auto mb-3 rounded-xl" />
+        <h1 className="text-lg font-semibold">Fute-Services</h1>
         <p className="mt-1 text-sm text-neutral-500">Admin login</p>
 
         <div className="relative mt-6">

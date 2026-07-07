@@ -1,10 +1,13 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100">
       <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col items-center justify-center px-6 py-20 text-center">
-        <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
+        <Image src="/logo.png" alt="Fute-Services" width={64} height={64} className="mb-4 rounded-2xl" />
+        <p className="text-sm font-medium text-neutral-400">Fute-Services</p>
+        <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
           Deliver apps to your clients, simply and securely.
         </h1>
         <p className="mt-4 max-w-xl text-neutral-400">

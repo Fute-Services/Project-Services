@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import CopyLinkButton from "./copy-link-button";
 import AddClientForm from "./add-client-form";
 import AddProjectForm from "./add-project-form";
@@ -93,12 +94,15 @@ export default function AdminPage() {
     <main className="min-h-screen bg-neutral-950 text-neutral-100">
       <div className="mx-auto max-w-3xl px-6 py-10">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-semibold">App Distribution Portal</h1>
-            <p className="mt-1 text-sm text-neutral-500">
-              Add a new client, upload their apps, and share the link with
-              them.
-            </p>
+          <div className="flex items-center gap-3">
+            <Image src="/logo.png" alt="Fute-Services" width={40} height={40} className="rounded-lg" />
+            <div>
+              <h1 className="text-xl font-semibold">Fute-Services</h1>
+              <p className="mt-1 text-sm text-neutral-500">
+                Add a new client, upload their apps, and share the link with
+                them.
+              </p>
+            </div>
           </div>
           <button
             onClick={handleLogout}
