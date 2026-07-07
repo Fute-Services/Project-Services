@@ -9,7 +9,7 @@ export type ProjectDownloads = {
   android: string | null;
 };
 
-export type ProjectStatus = "in_progress" | "delivered" | "pending_payment";
+export type ProjectStatus = "in_progress" | "delivered";
 
 export type VersionEntry = {
   version: string;
@@ -28,6 +28,8 @@ export type Project = {
   versions: VersionEntry[];
   status: ProjectStatus;
   expiresAt: string | null;
+  screenshots: string[];
+  notes: string;
   updatedAt: string;
 };
 
@@ -73,6 +75,10 @@ export function getProjectBySlug(
   return null;
 }
 
+export function getClientById(id: string): Client | null {
+  return readData().clients.find((c) => c.id === id) ?? null;
+}
+
 export function isExpired(project: Project): boolean {
   if (!project.expiresAt) return false;
   return new Date(project.expiresAt).getTime() < Date.now();
@@ -113,6 +119,7 @@ export function addProject(
     version: string;
     downloads: ProjectDownloads;
     expiresAt?: string | null;
+    screenshots?: string[];
   }
 ): Project {
   const data = readData();
@@ -132,6 +139,8 @@ export function addProject(
     versions: [{ version: input.version, downloads: input.downloads, createdAt: now }],
     status: "in_progress",
     expiresAt: input.expiresAt ?? null,
+    screenshots: input.screenshots ?? [],
+    notes: "",
     updatedAt: now,
   };
 
@@ -179,6 +188,37 @@ export function updateProjectStatus(
     const project = client.projects.find((p) => p.slug === slug);
     if (project) {
       project.status = status;
+      project.updatedAt = new Date().toISOString();
+      writeData(data);
+      return project;
+    }
+  }
+  throw new Error("Project not found");
+}
+
+export function updateProjectNotes(slug: string, notes: string): Project {
+  const data = readData();
+  for (const client of data.clients) {
+    const project = client.projects.find((p) => p.slug === slug);
+    if (project) {
+      project.notes = notes;
+      project.updatedAt = new Date().toISOString();
+      writeData(data);
+      return project;
+    }
+  }
+  throw new Error("Project not found");
+}
+
+export function addProjectScreenshots(
+  slug: string,
+  newScreenshots: string[]
+): Project {
+  const data = readData();
+  for (const client of data.clients) {
+    const project = client.projects.find((p) => p.slug === slug);
+    if (project) {
+      project.screenshots = [...project.screenshots, ...newScreenshots];
       project.updatedAt = new Date().toISOString();
       writeData(data);
       return project;

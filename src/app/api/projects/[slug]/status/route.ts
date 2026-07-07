@@ -1,11 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { updateProjectStatus, type ProjectStatus } from "@/lib/clients";
 
-const VALID_STATUSES: ProjectStatus[] = [
-  "in_progress",
-  "delivered",
-  "pending_payment",
-];
+const VALID_STATUSES: ProjectStatus[] = ["in_progress", "delivered"];
 
 export async function PATCH(
   req: NextRequest,

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import type { ProjectDownloads } from "@/lib/clients";
+import GithubReleasePicker from "./github-release-picker";
 
 export default function AddProjectForm({
   clientId,
@@ -15,9 +17,15 @@ export default function AddProjectForm({
   const [windowsFile, setWindowsFile] = useState<File | null>(null);
   const [macFile, setMacFile] = useState<File | null>(null);
   const [androidFile, setAndroidFile] = useState<File | null>(null);
+  const [githubUrls, setGithubUrls] = useState<Partial<ProjectDownloads>>({});
   const [expiresAt, setExpiresAt] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  function handleGithubApply(downloads: Partial<ProjectDownloads>, ghVersion: string) {
+    setGithubUrls(downloads);
+    if (ghVersion) setVersion(ghVersion);
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -25,8 +33,11 @@ export default function AddProjectForm({
       setError("App ka naam daalo");
       return;
     }
-    if (!windowsFile && !macFile && !androidFile) {
-      setError("Kam se kam ek platform ki file upload karo");
+    const hasAny =
+      windowsFile || macFile || androidFile ||
+      githubUrls.windows || githubUrls.mac || githubUrls.android;
+    if (!hasAny) {
+      setError("Kam se kam ek platform ki file upload karo ya GitHub se import karo");
       return;
     }
 
@@ -40,8 +51,11 @@ export default function AddProjectForm({
     form.set("version", version);
     if (expiresAt) form.set("expiresAt", expiresAt);
     if (windowsFile) form.set("windows", windowsFile);
+    else if (githubUrls.windows) form.set("windowsUrl", githubUrls.windows);
     if (macFile) form.set("mac", macFile);
+    else if (githubUrls.mac) form.set("macUrl", githubUrls.mac);
     if (androidFile) form.set("android", androidFile);
+    else if (githubUrls.android) form.set("androidUrl", githubUrls.android);
 
     const res = await fetch("/api/projects", { method: "POST", body: form });
     setSaving(false);
@@ -90,6 +104,9 @@ export default function AddProjectForm({
             onChange={(e) => setWindowsFile(e.target.files?.[0] ?? null)}
             className="text-xs"
           />
+          {githubUrls.windows && !windowsFile && (
+            <span className="text-green-400">GitHub se linked ✓</span>
+          )}
         </label>
         <label className="flex flex-col gap-1">
           Mac (.dmg)
@@ -99,6 +116,9 @@ export default function AddProjectForm({
             onChange={(e) => setMacFile(e.target.files?.[0] ?? null)}
             className="text-xs"
           />
+          {githubUrls.mac && !macFile && (
+            <span className="text-green-400">GitHub se linked ✓</span>
+          )}
         </label>
         <label className="flex flex-col gap-1">
           Android (.apk)
@@ -108,8 +128,13 @@ export default function AddProjectForm({
             onChange={(e) => setAndroidFile(e.target.files?.[0] ?? null)}
             className="text-xs"
           />
+          {githubUrls.android && !androidFile && (
+            <span className="text-green-400">GitHub se linked ✓</span>
+          )}
         </label>
       </div>
+
+      <GithubReleasePicker onApply={handleGithubApply} />
 
       <label className="flex flex-col gap-1 text-xs text-neutral-400">
         Link expiry (optional)
@@ -128,7 +153,7 @@ export default function AddProjectForm({
         disabled={saving}
         className="self-start rounded-lg bg-white px-4 py-2 text-sm font-medium text-neutral-900 hover:bg-neutral-200 disabled:opacity-50"
       >
-        {saving ? "Uploading..." : "Upload & Create Link"}
+        {saving ? "Saving..." : "Create Link"}
       </button>
     </form>
   );

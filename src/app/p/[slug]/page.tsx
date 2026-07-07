@@ -28,6 +28,20 @@ export default async function ProjectPage({
           {client.name} · v{project.version}
         </p>
 
+        {project.screenshots.length > 0 && (
+          <div className="mt-6 flex gap-3 overflow-x-auto pb-1">
+            {project.screenshots.map((src, i) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={src}
+                src={src}
+                alt={`${project.title} screenshot ${i + 1}`}
+                className="h-40 w-auto shrink-0 rounded-lg border border-neutral-800 object-cover"
+              />
+            ))}
+          </div>
+        )}
+
         {expired ? (
           <p className="mt-10 text-sm text-neutral-500">
             Ye link expire ho chuka hai. Naya link ke liye {client.name} se

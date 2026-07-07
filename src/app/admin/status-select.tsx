@@ -6,13 +6,11 @@ import type { ProjectStatus } from "@/lib/clients";
 const LABELS: Record<ProjectStatus, string> = {
   in_progress: "In Progress",
   delivered: "Delivered",
-  pending_payment: "Pending Payment",
 };
 
 const COLORS: Record<ProjectStatus, string> = {
   in_progress: "bg-blue-500/20 text-blue-300",
   delivered: "bg-green-500/20 text-green-300",
-  pending_payment: "bg-amber-500/20 text-amber-300",
 };
 
 export default function StatusSelect({

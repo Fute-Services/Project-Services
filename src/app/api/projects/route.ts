@@ -30,8 +30,11 @@ export async function POST(req: NextRequest) {
 
   for (const platform of PLATFORMS) {
     const file = form.get(platform);
+    const url = String(form.get(`${platform}Url`) ?? "").trim();
     if (file instanceof File && file.size > 0) {
       downloads[platform] = await saveFile(file, clientId, projectSlug, platform);
+    } else if (url) {
+      downloads[platform] = url;
     }
   }
 

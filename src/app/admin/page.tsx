@@ -7,8 +7,10 @@ import AddClientForm from "./add-client-form";
 import AddProjectForm from "./add-project-form";
 import AddVersionForm from "./add-version-form";
 import StatusSelect from "./status-select";
-import QrCodeButton from "./qr-code-button";
 import WhatsAppShareButton from "./whatsapp-share-button";
+import EmailShareButton from "./email-share-button";
+import NotesEditor from "./notes-editor";
+import ScreenshotsUploader from "./screenshots-uploader";
 import type { ProjectStatus } from "@/lib/clients";
 
 type Client = {
@@ -20,6 +22,8 @@ type Client = {
     version: string;
     status: ProjectStatus;
     expiresAt: string | null;
+    notes: string;
+    screenshots: string[];
     downloadCounts: { windows: number; mac: number; android: number };
     downloads: { windows: string | null; mac: string | null; android: string | null };
   }[];
@@ -31,6 +35,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [openProjectForm, setOpenProjectForm] = useState<string | null>(null);
   const [openVersionForm, setOpenVersionForm] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
 
   async function loadClients() {
     setLoading(true);
@@ -49,6 +54,25 @@ export default function AdminPage() {
     router.push("/admin/login");
     router.refresh();
   }
+
+  const query = search.trim().toLowerCase();
+  const filteredClients = !query
+    ? clients
+    : clients
+        .map((client) => {
+          const clientMatches = client.name.toLowerCase().includes(query);
+          const projects = clientMatches
+            ? client.projects
+            : client.projects.filter((p) =>
+                p.title.toLowerCase().includes(query)
+              );
+          return { ...client, projects };
+        })
+        .filter(
+          (client) =>
+            client.name.toLowerCase().includes(query) ||
+            client.projects.length > 0
+        );
 
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100 px-6 py-10">
@@ -69,21 +93,40 @@ export default function AdminPage() {
           </button>
         </div>
 
-        <div className="mt-8">
+        <div className="mt-8 flex flex-wrap items-center gap-3">
           <AddClientForm onCreated={loadClients} />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search client ya app..."
+            className="min-w-[220px] flex-1 rounded-lg bg-neutral-900 px-3 py-2 text-sm outline-none placeholder:text-neutral-600"
+          />
         </div>
 
         {loading && (
           <p className="mt-8 text-sm text-neutral-500">Loading...</p>
         )}
 
+        {!loading && query && filteredClients.length === 0 && (
+          <p className="mt-8 text-sm text-neutral-500">
+            &quot;{search}&quot; se kuch match nahi hua.
+          </p>
+        )}
+
         <div className="mt-8 space-y-8">
-          {clients.map((client) => (
+          {filteredClients.map((client) => (
             <div key={client.id}>
               <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-400">
-                  {client.name}
-                </h2>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-400">
+                    {client.name}
+                  </h2>
+                  <CopyLinkButton
+                    slug={client.id}
+                    path="c"
+                    label="Client Portal Link"
+                  />
+                </div>
                 <button
                   onClick={() =>
                     setOpenProjectForm(
@@ -154,7 +197,7 @@ export default function AdminPage() {
                             {openVersionForm === project.slug ? "Cancel" : "+ Version"}
                           </button>
                           <WhatsAppShareButton slug={project.slug} title={project.title} />
-                          <QrCodeButton slug={project.slug} />
+                          <EmailShareButton slug={project.slug} title={project.title} />
                           <CopyLinkButton slug={project.slug} />
                         </div>
                       </div>
@@ -170,6 +213,17 @@ export default function AdminPage() {
                           />
                         </div>
                       )}
+
+                      <div className="mt-2 flex items-center gap-4">
+                        <NotesEditor slug={project.slug} initialNotes={project.notes} />
+                        <ScreenshotsUploader slug={project.slug} onUploaded={loadClients} />
+                        {project.screenshots.length > 0 && (
+                          <span className="text-xs text-neutral-600">
+                            {project.screenshots.length} screenshot
+                            {project.screenshots.length === 1 ? "" : "s"}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   );
                 })}

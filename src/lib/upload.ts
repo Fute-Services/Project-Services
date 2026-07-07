@@ -19,3 +19,27 @@ export async function saveFile(
 
   return `/uploads/${clientId}/${projectSlug}/${filename}`;
 }
+
+export async function saveScreenshot(
+  file: File,
+  clientId: string,
+  projectSlug: string
+): Promise<string> {
+  const ext = path.extname(file.name) || ".png";
+  const dir = path.join(
+    process.cwd(),
+    "public",
+    "uploads",
+    clientId,
+    projectSlug,
+    "screenshots"
+  );
+  fs.mkdirSync(dir, { recursive: true });
+
+  const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}${ext}`;
+  const filePath = path.join(dir, filename);
+  const buffer = Buffer.from(await file.arrayBuffer());
+  fs.writeFileSync(filePath, buffer);
+
+  return `/uploads/${clientId}/${projectSlug}/screenshots/${filename}`;
+}

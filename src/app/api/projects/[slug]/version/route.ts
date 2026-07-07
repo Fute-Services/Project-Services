@@ -33,6 +33,7 @@ export async function POST(
 
   for (const platform of PLATFORMS) {
     const file = form.get(platform);
+    const url = String(form.get(`${platform}Url`) ?? "").trim();
     if (file instanceof File && file.size > 0) {
       downloads[platform] = await saveFile(
         file,
@@ -40,6 +41,8 @@ export async function POST(
         slug,
         platform
       );
+    } else if (url) {
+      downloads[platform] = url;
     }
   }
 
