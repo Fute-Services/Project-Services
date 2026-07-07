@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { ProjectDownloads } from "@/lib/clients";
+import type { ProjectDownloads, PlatformSettings } from "@/lib/clients";
 
 type Platform = "windows" | "mac" | "android";
 
-const LABELS: Record<Platform, string> = {
+const DEFAULT_LABELS: Record<Platform, string> = {
   windows: "Download for Windows",
   mac: "Download for Mac",
   android: "Download for Android",
@@ -22,9 +22,11 @@ function detectPlatform(): Platform | null {
 export default function DownloadButtons({
   slug,
   downloads,
+  platformSettings,
 }: {
   slug: string;
   downloads: ProjectDownloads;
+  platformSettings?: PlatformSettings;
 }) {
   const [detected, setDetected] = useState<Platform | null>(null);
 
@@ -32,8 +34,14 @@ export default function DownloadButtons({
     setDetected(detectPlatform());
   }, []);
 
-  const platforms = (Object.keys(LABELS) as Platform[]).filter(
-    (p) => downloads[p]
+  const LABELS: Record<Platform, string> = {
+    windows: platformSettings?.windows.label || DEFAULT_LABELS.windows,
+    mac: platformSettings?.mac.label || DEFAULT_LABELS.mac,
+    android: platformSettings?.android.label || DEFAULT_LABELS.android,
+  };
+
+  const platforms = (Object.keys(DEFAULT_LABELS) as Platform[]).filter(
+    (p) => downloads[p] && (platformSettings?.[p]?.enabled ?? true)
   );
 
   if (platforms.length === 0) {

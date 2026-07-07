@@ -12,7 +12,15 @@ import EmailShareButton from "./email-share-button";
 import NotesEditor from "./notes-editor";
 import ScreenshotsUploader from "./screenshots-uploader";
 import EditProjectForm from "./edit-project-form";
-import type { ProjectStatus } from "@/lib/clients";
+import type { ProjectStatus, PlatformSettings } from "@/lib/clients";
+
+// Local copy so this client component doesn't pull in lib/clients.ts's
+// server-only fs/Redis imports just for one default object.
+const DEFAULT_PLATFORM_SETTINGS: PlatformSettings = {
+  windows: { enabled: true, label: "" },
+  mac: { enabled: true, label: "" },
+  android: { enabled: true, label: "" },
+};
 
 type Client = {
   id: string;
@@ -29,6 +37,8 @@ type Client = {
     screenshots: string[];
     downloadCounts: { windows: number; mac: number; android: number };
     downloads: { windows: string | null; mac: string | null; android: string | null };
+    platformSettings?: PlatformSettings;
+    background?: string;
   }[];
 };
 
@@ -237,6 +247,10 @@ export default function AdminPage() {
                             initialTitle={project.title}
                             initialDescription={project.description}
                             initialIcon={project.icon}
+                            initialPlatformSettings={
+                              project.platformSettings ?? DEFAULT_PLATFORM_SETTINGS
+                            }
+                            initialBackground={project.background ?? ""}
                             onSaved={() => {
                               setOpenEditForm(null);
                               loadClients();

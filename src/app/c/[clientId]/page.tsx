@@ -58,7 +58,7 @@ export default async function ClientPortalPage({
         </div>
 
         <div className="mt-12 border-t border-neutral-800 pt-6 text-xs text-neutral-600">
-          Powered by Project-Services
+          Powered by Fute-Services
         </div>
       </div>
     </main>

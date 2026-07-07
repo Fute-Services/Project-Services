@@ -16,7 +16,10 @@ export default async function ProjectPage({
   const expired = isExpired(project);
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-6 py-16 bg-neutral-950 text-neutral-100">
+    <main
+      className="min-h-screen flex flex-col items-center justify-center px-6 py-16 bg-neutral-950 text-neutral-100"
+      style={project.background ? { backgroundColor: project.background } : undefined}
+    >
       <div className="w-full max-w-md text-center">
         {project.icon ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -56,11 +59,15 @@ export default async function ProjectPage({
             This link has expired. Contact {client.name} for a new link.
           </p>
         ) : (
-          <DownloadButtons slug={project.slug} downloads={project.downloads} />
+          <DownloadButtons
+            slug={project.slug}
+            downloads={project.downloads}
+            platformSettings={project.platformSettings}
+          />
         )}
 
         <div className="mt-12 border-t border-neutral-800 pt-6 text-xs text-neutral-600">
-          Powered by Project-Services
+          Powered by Fute-Services
         </div>
       </div>
     </main>

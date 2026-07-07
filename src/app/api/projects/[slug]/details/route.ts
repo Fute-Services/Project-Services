@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getProjectBySlug, updateProjectDetails } from "@/lib/clients";
+import {
+  getProjectBySlug,
+  updateProjectDetails,
+  DEFAULT_PLATFORM_SETTINGS,
+  type Platform,
+  type PlatformSettings,
+} from "@/lib/clients";
 import { saveIcon } from "@/lib/upload";
+
+const PLATFORMS: Platform[] = ["windows", "mac", "android"];
 
 export async function PATCH(
   req: NextRequest,
@@ -26,8 +34,33 @@ export async function PATCH(
       ? await saveIcon(iconFile, existing.client.id, slug)
       : undefined;
 
+  const background = form.has("background")
+    ? String(form.get("background") ?? "").trim()
+    : undefined;
+
+  const platformSettings: PlatformSettings = {
+    ...DEFAULT_PLATFORM_SETTINGS,
+    ...existing.project.platformSettings,
+  };
+  for (const platform of PLATFORMS) {
+    const enabledField = form.get(`${platform}Enabled`);
+    const labelField = form.get(`${platform}Label`);
+    if (enabledField !== null || labelField !== null) {
+      platformSettings[platform] = {
+        enabled: enabledField === "true",
+        label: String(labelField ?? "").trim(),
+      };
+    }
+  }
+
   try {
-    const project = await updateProjectDetails(slug, { title, description, icon });
+    const project = await updateProjectDetails(slug, {
+      title,
+      description,
+      icon,
+      platformSettings,
+      background,
+    });
     return NextResponse.json({ project });
   } catch (err) {
     return NextResponse.json(

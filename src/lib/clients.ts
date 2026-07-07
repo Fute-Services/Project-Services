@@ -18,6 +18,15 @@ export type VersionEntry = {
   createdAt: string;
 };
 
+export type PlatformSetting = { enabled: boolean; label: string };
+export type PlatformSettings = Record<Platform, PlatformSetting>;
+
+export const DEFAULT_PLATFORM_SETTINGS: PlatformSettings = {
+  windows: { enabled: true, label: "" },
+  mac: { enabled: true, label: "" },
+  android: { enabled: true, label: "" },
+};
+
 export type Project = {
   slug: string;
   title: string;
@@ -31,6 +40,8 @@ export type Project = {
   expiresAt: string | null;
   screenshots: string[];
   notes: string;
+  platformSettings: PlatformSettings;
+  background: string;
   updatedAt: string;
 };
 
@@ -160,6 +171,8 @@ export async function addProject(
     expiresAt: input.expiresAt ?? null,
     screenshots: input.screenshots ?? [],
     notes: "",
+    platformSettings: structuredClone(DEFAULT_PLATFORM_SETTINGS),
+    background: "",
     updatedAt: now,
   };
 
@@ -248,7 +261,13 @@ export async function addProjectScreenshots(
 
 export async function updateProjectDetails(
   slug: string,
-  input: { title: string; description: string; icon?: string }
+  input: {
+    title: string;
+    description: string;
+    icon?: string;
+    platformSettings?: PlatformSettings;
+    background?: string;
+  }
 ): Promise<Project> {
   const data = await readData();
   for (const client of data.clients) {
@@ -257,6 +276,11 @@ export async function updateProjectDetails(
       project.title = input.title;
       project.description = input.description;
       if (input.icon) project.icon = input.icon;
+      if (input.platformSettings) project.platformSettings = input.platformSettings;
+      if (input.background !== undefined) project.background = input.background;
+      if (!project.platformSettings) {
+        project.platformSettings = structuredClone(DEFAULT_PLATFORM_SETTINGS);
+      }
       project.updatedAt = new Date().toISOString();
       await writeData(data);
       return project;

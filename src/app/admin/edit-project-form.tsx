@@ -1,12 +1,21 @@
 "use client";
 
 import { useState } from "react";
+import type { PlatformSettings } from "@/lib/clients";
+
+const PLATFORM_LABELS = {
+  windows: "Windows",
+  mac: "Mac",
+  android: "Android",
+} as const;
 
 export default function EditProjectForm({
   slug,
   initialTitle,
   initialDescription,
   initialIcon,
+  initialPlatformSettings,
+  initialBackground,
   onSaved,
   onCancel,
 }: {
@@ -14,6 +23,8 @@ export default function EditProjectForm({
   initialTitle: string;
   initialDescription: string;
   initialIcon: string;
+  initialPlatformSettings: PlatformSettings;
+  initialBackground: string;
   onSaved: () => void;
   onCancel: () => void;
 }) {
@@ -21,6 +32,10 @@ export default function EditProjectForm({
   const [description, setDescription] = useState(initialDescription);
   const [iconFile, setIconFile] = useState<File | null>(null);
   const [iconPreview, setIconPreview] = useState(initialIcon);
+  const [platformSettings, setPlatformSettings] = useState<PlatformSettings>(
+    initialPlatformSettings
+  );
+  const [background, setBackground] = useState(initialBackground);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -38,6 +53,11 @@ export default function EditProjectForm({
     form.set("title", title);
     form.set("description", description);
     if (iconFile) form.set("icon", iconFile);
+    form.set("background", background);
+    for (const platform of ["windows", "mac", "android"] as const) {
+      form.set(`${platform}Enabled`, String(platformSettings[platform].enabled));
+      form.set(`${platform}Label`, platformSettings[platform].label);
+    }
 
     const res = await fetch(`/api/projects/${slug}/details`, {
       method: "PATCH",
@@ -99,6 +119,50 @@ export default function EditProjectForm({
         placeholder="Short description"
         className="rounded-lg bg-neutral-900 px-3 py-2 text-sm outline-none placeholder:text-neutral-600"
       />
+
+      <div className="flex flex-col gap-2 rounded-lg border border-neutral-800 p-3">
+        <p className="text-xs text-neutral-500">
+          Download buttons shown on the public page:
+        </p>
+        {(["windows", "mac", "android"] as const).map((platform) => (
+          <div key={platform} className="flex items-center gap-2 text-xs">
+            <label className="flex w-20 shrink-0 items-center gap-1.5">
+              <input
+                type="checkbox"
+                checked={platformSettings[platform].enabled}
+                onChange={(e) =>
+                  setPlatformSettings((prev) => ({
+                    ...prev,
+                    [platform]: { ...prev[platform], enabled: e.target.checked },
+                  }))
+                }
+              />
+              {PLATFORM_LABELS[platform]}
+            </label>
+            <input
+              value={platformSettings[platform].label}
+              onChange={(e) =>
+                setPlatformSettings((prev) => ({
+                  ...prev,
+                  [platform]: { ...prev[platform], label: e.target.value },
+                }))
+              }
+              placeholder={`Download for ${PLATFORM_LABELS[platform]}`}
+              className="flex-1 rounded-lg bg-neutral-900 px-2 py-1.5 outline-none placeholder:text-neutral-600"
+            />
+          </div>
+        ))}
+      </div>
+
+      <label className="flex flex-col gap-1 text-xs text-neutral-400">
+        Public page background (CSS color, e.g. #0a0a0a or transparent for default)
+        <input
+          value={background}
+          onChange={(e) => setBackground(e.target.value)}
+          placeholder="Default"
+          className="rounded-lg bg-neutral-900 px-3 py-2 text-sm text-neutral-100 outline-none placeholder:text-neutral-600"
+        />
+      </label>
 
       {error && <p className="text-xs text-red-400">{error}</p>}
 
